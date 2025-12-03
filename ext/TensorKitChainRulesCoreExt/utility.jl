@@ -20,7 +20,7 @@ end
 
 TensorKit.block(t::ZeroTangent, c::Sector) = t
 
-ChainRulesCore.ProjectTo(::T) where {T <: AbstractTensorMap} = ProjectTo{T}()
+ChainRulesCore.ProjectTo(t::T) where {T <: AbstractTensorMap} = ProjectTo{T}(;space = space(t))
 function (::ProjectTo{T1})(x::T2) where {
         S, N1, N2, T1 <: AbstractTensorMap{<:Any, S, N1, N2}, T2 <: AbstractTensorMap{<:Any, S, N1, N2},
     }
@@ -43,4 +43,18 @@ function (::ProjectTo{DiagonalTensorMap{T, S, A}})(x::AbstractTensorMap) where {
         b .= p(block(x, c))
     end
     return y
+end
+
+function (proj::ProjectTo{T1})(dx::Number) where {
+        T, S, N1, N2, T1 <: AbstractTensorMap{T, S, N1, N2}
+    }
+    if !(N1 == 0 && N2 == 0)
+        throw(
+            DimensionMismatch(
+                "tensor with ndims(x) == $(T1) cannot have dx::Number"
+            ),
+        )
+    end
+    p = ProjectTo(zero(T))
+    return TensorMap(fill(p(dx)), proj.space)
 end

@@ -13,7 +13,8 @@ function ChainRulesCore.rrule(
 
     function pullback(ΔC′)
         ΔC = unthunk(ΔC′)
-        dC = @thunk projectC(scale(ΔC, conj(β)))
+        # dC = @thunk projectC(scale(ΔC, conj(β)))
+        dC = @thunk projectC(ΔC * conj(β))
         dA = @thunk let
             ipA = invperm(linearize(pA))
             pdA = _repartition(ipA, A)
@@ -21,7 +22,7 @@ function ChainRulesCore.rrule(
             # TODO: allocator
             _dA = tensoralloc_add(TA, ΔC, pdA, conjA, Val(false))
             _dA = tensoradd!(_dA, ΔC, pdA, conjA, conjA ? α : conj(α), Zero(), ba...)
-            return projectA(_dA)
+            projectA(_dA)
         end
         dα = @thunk let
             # TODO: this is an inner product implemented as a contraction
@@ -36,7 +37,7 @@ function ChainRulesCore.rrule(
                     ((), ()), One(), ba...
                 )
             )
-            return projectα(_dα)
+            projectα(_dα)
         end
         dβ = @thunk projectβ(inner(C, ΔC))
         dba = map(_ -> NoTangent(), ba)
@@ -67,7 +68,8 @@ function ChainRulesCore.rrule(
         ipAB = invperm(linearize(pAB))
         pΔC = _repartition(ipAB, TO.numout(pA))
 
-        dC = @thunk projectC(scale(ΔC, conj(β)))
+        # dC = @thunk projectC(scale(ΔC, conj(β)))
+        dC = @thunk projectC(ΔC * conj(β))
         dA = @thunk let
             ipA = _repartition(invperm(linearize(pA)), A)
             conjΔC = conjA
@@ -91,7 +93,7 @@ function ChainRulesCore.rrule(
                 ipA,
                 conjA ? α : conj(α), Zero(), ba...
             )
-            return projectA(_dA)
+            projectA(_dA)
         end
         dB = @thunk let
             ipB = _repartition(invperm(linearize(pB)), B)
@@ -116,12 +118,12 @@ function ChainRulesCore.rrule(
                 ipB,
                 conjB ? α : conj(α), Zero(), ba...
             )
-            return projectB(_dB)
+            projectB(_dB)
         end
         dα = @thunk let
             # TODO: this result should be AB = (C′ - βC) / α as C′ = βC + αAB
             AB = tensorcontract(A, pA, conjA, B, pB, conjB, pAB, One(), ba...)
-            return projectα(inner(AB, ΔC))
+            projectα(inner(AB, ΔC))
         end
         dβ = @thunk projectβ(inner(C, ΔC))
         dba = map(_ -> NoTangent(), ba)
@@ -149,7 +151,8 @@ function ChainRulesCore.rrule(
 
     function pullback(ΔC′)
         ΔC = unthunk(ΔC′)
-        dC = @thunk projectC(scale(ΔC, conj(β)))
+        # dC = @thunk projectC(scale(ΔC, conj(β)))
+        dC = @thunk projectC(ΔC * conj(β))
         dA = @thunk let
             ip = invperm((linearize(p)..., q[1]..., q[2]...))
             pdA = _repartition(ip, A)
@@ -163,13 +166,13 @@ function ChainRulesCore.rrule(
             _dA = tensorproduct!(
                 _dA, ΔC, pΔC, conjA, E, pE, conjA, pdA, conjA ? α : conj(α), Zero(), ba...
             )
-            return projectA(_dA)
+            projectA(_dA)
         end
         dα = @thunk let
             # TODO: this result might be easier to compute as:
             # C′ = βC + α * trace(A) ⟹ At = (C′ - βC) / α
             At = tensortrace(A, p, q, conjA)
-            return projectα(inner(At, ΔC))
+            projectα(inner(At, ΔC))
         end
         dβ = @thunk projectβ(inner(C, ΔC))
         dba = map(_ -> NoTangent(), ba)
