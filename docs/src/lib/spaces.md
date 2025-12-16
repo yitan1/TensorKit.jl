@@ -1,4 +1,4 @@
-# Vector spaces
+# [Vector spaces](@id s_libvectorspaces)
 
 ```@meta
 CurrentModule = TensorKit
@@ -21,7 +21,7 @@ ProductSpace
 HomSpace
 ```
 
-together with the following specific types for encoding the inner product structure of
+together with the following specific type for encoding the inner product structure of
 a space:
 
 ```@docs
@@ -85,14 +85,15 @@ space
 The following methods act specifically on `ElementarySpace` spaces:
 
 ```@docs
-isdual
 dual(::VectorSpace)
 conj
+isconj
+isdual
 flip
-⊕
-⊖
 zerospace
 unitspace
+⊕
+⊖
 supremum
 infimum
 ```
@@ -100,8 +101,8 @@ infimum
 while the following also work on both `ElementarySpace` and `ProductSpace`
 
 ```@docs
-one(::VectorSpace)
 fuse
+one(::VectorSpace)
 ⊗(::VectorSpace, ::VectorSpace)
 ⊠(::VectorSpace, ::VectorSpace)
 ismonomorphic
@@ -122,7 +123,7 @@ the resuling `HomSpace` after applying certain tensor operations.
 
 ```@docs
 flip(W::HomSpace{S}, I) where {S}
-TensorKit.permute(::HomSpace{S}, ::Index2Tuple{N₁,N₂}) where {S,N₁,N₂}
+TensorKit.permute(::HomSpace, ::Index2Tuple)
 TensorKit.select(::HomSpace{S}, ::Index2Tuple{N₁,N₂}) where {S,N₁,N₂}
 TensorKit.compose(::HomSpace{S}, ::HomSpace{S}) where {S}
 insertleftunit(::HomSpace, ::Val{i}) where {i}
